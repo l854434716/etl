@@ -13,6 +13,8 @@ object Content {
   val DEFAULT_SPRAY_CONF_PATH = PROJECT_HOME.concat("/conf/akka/spray.conf")
 
 
+  //
+
   val COLLECTORROLENAME = "collector"
 
   val MASTERROLENAME = "master"
