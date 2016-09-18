@@ -1,13 +1,18 @@
 package com.sdspray.http.service
 
+import java.util
+
 import akka.actor.ActorSystem
 import akka.cluster.ClusterEvent.CurrentClusterState
+import akka.cluster.Member
 import cluster.actor.master.MasterActor
 import cluster.actor.monitor.ClusterEventMoniter
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import spray.routing.{Route, Directives, HttpService, RequestContext}
 import java.io.File
 import org.parboiled.common.FileUtils
+
 import scala.concurrent.duration._
 import akka.actor._
 import akka.pattern.ask
@@ -57,6 +62,20 @@ class MonitorService(implicit actorRefFactory: ActorSystem) extends Directives {
           }
         } ~ path("clusterStatus") {
         complete {
+          import scala.collection._
+
+
+
+
+          implicit val clusterStatueMarshaller: Marshaller[mutable.Set[Member]] =
+            Marshaller.delegate[mutable.Set[Member], String](ContentTypes.`application/json`) { clusterState =>
+
+
+              import collection.JavaConversions._
+              val  _set:util.Set[Member]=clusterState
+
+              new Gson().toJson(_set)
+            }
           sendClusterStatuResponse
         }
 
@@ -143,20 +162,12 @@ class MonitorService(implicit actorRefFactory: ActorSystem) extends Directives {
 
   def sendClusterStatuResponse() = {
 
+    import scala.collection._
     actorRefFactory.actorSelection("/user/master/" + MasterActor.MONITERACTORNAME)
       .ask(ClusterEventMoniter.GETCLUSTERSTATE)(2.second)
-      .mapTo[Option[CurrentClusterState]]
+      .mapTo[mutable.Set[Member]]
 
   }
 
-  implicit val clusterStatueMarshaller: Marshaller[Option[CurrentClusterState]] =
-    Marshaller.delegate[Option[CurrentClusterState], String](ContentTypes.`application/json`) { clusterState =>
-      if (clusterState.isDefined) {
-        new Gson().toJson(clusterState.get)
-        clusterState.get.toString
-      } else {
-        "nothing to show"
-      }
 
-    }
 }

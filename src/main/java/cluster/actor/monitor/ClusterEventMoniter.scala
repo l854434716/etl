@@ -5,6 +5,8 @@ import akka.cluster.{MemberStatus, Member, Cluster}
 import akka.cluster.ClusterEvent._
 import org.slf4j.LoggerFactory
 
+import scala.collection.mutable
+
 /**
   * 监控集群事件，监控各节点的状态
   */
@@ -13,7 +15,9 @@ class ClusterEventMoniter extends Actor with ActorLogging {
   import ClusterEventMoniter._
 
   val cluster = Cluster(context.system)
-  var stateOpt: Option[CurrentClusterState] = None;
+
+
+  val activeMembers= mutable.Set.empty[Member]
 
   override def postStop(): Unit = {
     cluster.unsubscribe(self)
@@ -37,7 +41,7 @@ class ClusterEventMoniter extends Actor with ActorLogging {
     case state: CurrentClusterState =>
       doCurrentClusterState(state)
     case GETCLUSTERSTATE => {
-      sender() ! stateOpt
+      sender() ! activeMembers
     }
     case _ => //igron
   }
@@ -45,22 +49,24 @@ class ClusterEventMoniter extends Actor with ActorLogging {
   private def doMemberUp(member: Member) = {
     log.info("node address is {} with roles is {}  memberup in cluster",
       member.address.toString, member.getRoles.toString)
+    activeMembers+=member
   }
 
   private def doMemberRemoved(member: Member, previousStatus: MemberStatus) = {
     log.info("node address is {} with roles is {} remove from   cluster",
       member.address.toString, member.getRoles.toString)
+    activeMembers-=member
   }
 
   private def doMemberUnreachable(member: Member) = {
 
     log.info("node address is {} with roles is {}  unrechable",
       member.address.toString, member.getRoles.toString)
+    activeMembers-=member
   }
 
   private def doCurrentClusterState(state: CurrentClusterState) = {
-
-    stateOpt = Some(state)
+    activeMembers++=state.members
   }
 
   private def findActorByMemberAndPath(member: Member, path: String) = {
