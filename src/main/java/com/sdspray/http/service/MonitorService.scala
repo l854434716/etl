@@ -9,6 +9,7 @@ import cluster.actor.master.MasterActor
 import cluster.actor.monitor.ClusterEventMoniter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.sdspray.domain.ClusterNode
 import spray.routing.{Route, Directives, HttpService, RequestContext}
 import java.io.File
 import org.parboiled.common.FileUtils
@@ -62,20 +63,7 @@ class MonitorService(implicit actorRefFactory: ActorSystem) extends Directives {
           }
         } ~ path("clusterStatus") {
         complete {
-          import scala.collection._
 
-
-
-
-          implicit val clusterStatueMarshaller: Marshaller[mutable.Set[Member]] =
-            Marshaller.delegate[mutable.Set[Member], String](ContentTypes.`application/json`) { clusterState =>
-
-
-              import collection.JavaConversions._
-              val  _set:util.Set[Member]=clusterState
-
-              new Gson().toJson(_set)
-            }
           sendClusterStatuResponse
         }
 
@@ -168,6 +156,22 @@ class MonitorService(implicit actorRefFactory: ActorSystem) extends Directives {
       .mapTo[mutable.Set[Member]]
 
   }
+
+  import scala.collection._
+
+  implicit val clusterStatueMarshaller: Marshaller[mutable.Set[Member]] =
+    Marshaller.delegate[mutable.Set[Member], String](ContentTypes.`application/json`) { clusterState =>
+
+
+      import collection.JavaConversions._
+      val  _set:util.Set[ClusterNode]=clusterState.map(member=>{
+
+        ClusterNode(member.uniqueAddress.address.toString,member.getRoles)
+
+      })
+
+      new Gson().toJson(_set)
+    }
 
 
 }
