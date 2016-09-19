@@ -25,9 +25,9 @@ class IndexService(implicit system: ActorSystem) extends Directives {
         getFromResource(dir + "index.html")
       } ~
         getFromResourceDirectory(dir)
-    } ~ pathSingleSlash {
+    } ~ /*pathSingleSlash {
       complete("亲爱的梦瑶我爱你,我是你家的猪,今天是我睡懒觉害你又没玩成.对不起")
-    } ~
+    } ~*/
       path("echo" / Segment) {
         message => get {
           complete {

@@ -2,7 +2,7 @@ package com.sdspray.http
 
 import com.sdspray.core.AbstractAkkaSystem
 import akka.actor.Props
-import com.sdspray.http.service.MonitorService
+import com.sdspray.http.service.{RedisService, MonitorService}
 import spray.httpx.encoding.Gzip
 import spray.routing._
 import spray.http.StatusCodes._
@@ -22,7 +22,7 @@ trait Routes extends RouteConcatenation with StaticRoute with AbstractAkkaSystem
 
 
   lazy val allRoutes = logRequest(showReq _) {
-    new IndexService().route ~ new MonitorService().monitorRoutes ~ staticRoute
+     new MonitorService().monitorRoutes ~new RedisService().monitorRoutes~ staticRoute
   }
 
   //  implicit val wsocketServer: WSocketServer

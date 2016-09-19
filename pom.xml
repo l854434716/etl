@@ -127,10 +127,16 @@
         </dependency>
 
         <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging-slf4j_2.10</artifactId>
+            <version>2.1.2</version>
+        </dependency>
+
+        <!--<dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.5</version>
-        </dependency>
+        </dependency>-->
 
 
         <dependency>
@@ -162,6 +168,15 @@
             <groupId>com.typesafe.play</groupId>
             <artifactId>twirl-api_2.11</artifactId>
             <version>1.1.1</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>biz.paluch.redis</groupId>
+            <artifactId>lettuce</artifactId>
+            <version>3.4.2.Final</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/lettuce-3.4.2.Final-shaded.jar</systemPath>
         </dependency>
 
 
