@@ -14,7 +14,7 @@ import spray.routing.Directives
   */
 class RedisService(implicit actorRefFactory: ActorSystem) extends Directives {
 
-  val  logger= Logger(LoggerFactory.getLogger(this.getClass.getName))
+  val  logger= LoggerFactory.getLogger(this.getClass.getName)
   val redisclient = RedisClient.create("redis://192.168.2.225:6379")
   val connection = redisclient.connect()
   val monitorRoutes = {
@@ -34,7 +34,7 @@ class RedisService(implicit actorRefFactory: ActorSystem) extends Directives {
                   case "set" =>
                   case "zset" =>
                 }
-                logger.info("qurey key {} result = {}",key,result.toString)
+                logger.info(s"qurey key ${key} result = ${result.toString}")
                 new Gson().toJson(result)
               }
             }
